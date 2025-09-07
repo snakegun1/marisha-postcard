@@ -17,7 +17,6 @@
     .rainbow{position:absolute;height:36px;left:0;opacity:0;filter:brightness(1.1)}
     .rainbow::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
 
-    /* Inline SVGs are absolutely positioned */
     svg{position:absolute;display:block}
     #cat{width:120px;height:96px;opacity:0}
     #heart{width:26px;height:26px;opacity:0}
@@ -27,6 +26,9 @@
     .ui{position:fixed;left:0;right:0;top:0;display:flex;gap:.5rem;justify-content:center;padding:.5rem;z-index:5}
     .btn{appearance:none;border:0;border-radius:12px;padding:.55rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(4px)}
     .btn:active{transform:scale(.98)}
+
+    /* kiss marker (for calibration) */
+    .mark{position:fixed;width:10px;height:10px;border-radius:50%;background:#ff2b6a;box-shadow:0 0 0 3px rgba(255,43,106,.35);transform:translate(-50%,-50%);pointer-events:none;opacity:.7}
   </style>
 </head>
 <body>
@@ -34,31 +36,24 @@
     <img class="photo" id="photo" alt="photo">
     <div class="rainbow" id="rainbow"></div>
 
-    <!-- Simple pixel cat made of rects (visible everywhere) -->
+    <!-- Pixel cat (SVG rectangles) -->
     <svg id="cat" viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-      <!-- tail -->
       <rect x="2" y="26" width="10" height="6" fill="#333"/>
       <rect x="4" y="28" width="10" height="6" fill="#ff7aa2"/>
-      <!-- body -->
       <rect x="12" y="22" width="28" height="18" fill="#333"/>
       <rect x="14" y="24" width="24" height="14" fill="#ffb3c9"/>
-      <!-- head -->
       <rect x="34" y="14" width="20" height="18" fill="#333"/>
       <rect x="36" y="16" width="16" height="14" fill="#f5e6c8"/>
-      <!-- ears -->
       <rect x="36" y="12" width="6" height="6" fill="#333"/>
       <rect x="48" y="12" width="6" height="6" fill="#333"/>
       <rect x="38" y="12" width="4" height="4" fill="#f5e6c8"/>
       <rect x="48" y="12" width="4" height="4" fill="#f5e6c8"/>
-      <!-- eyes -->
       <rect x="40" y="20" width="3" height="3" fill="#000"/>
       <rect x="47" y="20" width="3" height="3" fill="#000"/>
-      <!-- legs -->
       <rect x="18" y="40" width="5" height="6" fill="#333"/>
       <rect x="28" y="40" width="5" height="6" fill="#333"/>
     </svg>
 
-    <!-- Heart -->
     <svg id="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z" fill="#ff2b6a"/>
     </svg>
@@ -71,6 +66,8 @@
     <button class="btn" id="replay">Повторить</button>
   </div>
 
+  <div class="mark" id="mark" style="display:none"></div>
+
   <script>
     const stage = document.getElementById('stage');
     const photo = document.getElementById('photo');
@@ -80,32 +77,55 @@
     const caption = document.getElementById('caption');
     const fitBtn = document.getElementById('fit');
     const replayBtn = document.getElementById('replay');
+    const mark = document.getElementById('mark');
 
-    // Load photo: ?photo=... else ./marisha.jpg
+    // kiss point relative (0..1 of stage). Defaults tuned for your photo
+    let kissX = 0.67; // правую щёку по умолчанию
+    let kissY = 0.41;
+
+    // URL params: photo, text, fit, kissX, kissY
     (function(){
-      try{
+      try {
         const p = new URLSearchParams(location.search);
-        const photoParam = p.get('photo');
-        const textParam = p.get('text');
-        const fitParam = p.get('fit'); // 'cover' or 'contain'
-        if (textParam) caption.textContent = textParam;
-        if (fitParam === 'cover') photo.classList.add('cover');
-        if (photoParam) {
-          photo.src = photoParam;
-        } else {
+        const t = p.get('text'); if(t) caption.textContent = t;
+        const f = p.get('fit'); if(f === 'cover') photo.classList.add('cover');
+        const kx = parseFloat(p.get('kissX')); if(!isNaN(kx)) kissX = Math.min(1, Math.max(0, kx));
+        const ky = parseFloat(p.get('kissY')); if(!isNaN(ky)) kissY = Math.min(1, Math.max(0, ky));
+        const src = p.get('photo');
+        if(src){ photo.src = src; }
+        else {
           photo.src = './marisha.jpg';
           photo.onerror = ()=>{
             const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='2000'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#111'/><stop offset='1' stop-color='#333'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`);
             photo.src = 'data:image/svg+xml;utf8,'+svg;
           };
         }
-      }catch(e){}
+      } catch(e){}
     })();
 
     fitBtn.addEventListener('click', ()=> photo.classList.toggle('cover'));
     replayBtn.addEventListener('click', start);
-    stage.addEventListener('click', start);
+    stage.addEventListener('click', (e)=>{
+      if(e.shiftKey){
+        // Shift+Click to set kiss point
+        const r = stage.getBoundingClientRect();
+        kissX = (e.clientX - r.left)/r.width;
+        kissY = (e.clientY - r.top)/r.height;
+        placeMark();
+        start();
+      } else {
+        start();
+      }
+    });
     window.addEventListener('resize', ()=> start());
+
+    function placeMark(){
+      const x = stage.clientWidth * kissX;
+      const y = stage.clientHeight * kissY;
+      mark.style.left = x + 'px';
+      mark.style.top = y + 'px';
+      mark.style.display = 'block';
+    }
 
     function start(){
       caption.style.opacity = 0;
@@ -115,50 +135,55 @@
 
       const W = stage.clientWidth, H = stage.clientHeight;
       const catW = 120, catH = 96;
+
+      const targetPX = W * kissX;
+      const targetPY = H * kissY;
+      placeMark();
+
+      // Start cat off-screen left at correct Y
       let x = -catW - 40;
-      const y = H*0.55 - catH/2;
-      const targetX = W*0.60;
+      const y = targetPY - catH/2;
 
       cat.style.left = x + 'px';
       cat.style.top = y + 'px';
       rainbow.style.top = (y + catH/2 - 18) + 'px';
 
+      const stopX = targetPX - 34; // align cat "nose" to kiss point
+
       const t0 = performance.now();
-      const dur = 1800;
+      const dur = 1600;
       const easeOutQuart = t => 1 - Math.pow(1 - t, 4);
 
       function frame(now){
         const p = Math.min(1, (now - t0)/dur);
         const e = easeOutQuart(p);
-        x = (-catW - 40) + (targetX - (-catW - 40)) * e;
+        x = (-catW - 40) + (stopX - (-catW - 40)) * e;
         cat.style.left = x + 'px';
         rainbow.style.width = Math.max(60, x + catW*0.8) + 'px';
-        if (p < 1) requestAnimationFrame(frame); else kiss();
+        if(p < 1) requestAnimationFrame(frame); else kissAt(targetPX, targetPY);
       }
       requestAnimationFrame(frame);
     }
 
-    function kiss(){
-      const x = parseFloat(getComputedStyle(cat).left);
-      const y = parseFloat(getComputedStyle(cat).top);
-      heart.style.left = (x + 90) + 'px';
-      heart.style.top = (y + 50) + 'px';
+    function kissAt(px, py){
+      // heart at the cheek
+      heart.style.left = (px - 6) + 'px';
+      heart.style.top = (py - 6) + 'px';
       heart.style.opacity = 1;
       heart.animate([
         { transform:'translateY(0)', opacity:1 },
         { transform:'translateY(-40px)', opacity:0 }
-      ], { duration: 800, easing: 'ease-out' }).onfinish = ()=> heart.style.opacity = 0;
+      ], { duration: 900, easing: 'ease-out' }).onfinish = ()=> heart.style.opacity = 0;
 
+      // tiny pop
       cat.animate([
         { transform:'scale(1)' },
         { transform:'scale(1.08)' },
         { transform:'scale(1)' }
       ], { duration: 240, easing:'ease-out' });
 
-      caption.animate([
-        { opacity: 0 },
-        { opacity: 1 }
-      ], { duration: 1200, easing: 'ease-out' }).onfinish = ()=> caption.style.opacity = 1;
+      // caption fade
+      caption.animate([{opacity:0},{opacity:1}],{duration:1200,easing:'ease-out'}).onfinish=()=>caption.style.opacity=1;
     }
 
     photo.addEventListener('load', ()=> start(), { once:true });
