@@ -1,84 +1,167 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Мариша — открытка</title>
   <style>
+    :root{--txt:#fff;--shadow:rgba(0,0,0,.55)}
+    *{box-sizing:border-box}
     html,body{margin:0;height:100%;background:#000;overflow:hidden}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+
     .stage{position:fixed;inset:0;overflow:hidden}
     .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
-    .rainbow{position:absolute;height:38px;left:0;opacity:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
-    /* встроенный пиксельный кот через box-shadow */
-    .cat{position:absolute;width:1px;height:1px;opacity:0;image-rendering:pixelated}
-    .cat::before{content:"";position:absolute;width:1px;height:1px;box-shadow:
-      6px 2px #333,7px 2px #333,8px 2px #333,
-      5px 3px #333,6px 3px #ccc,7px 3px #f5e6c8,8px 3px #ccc,9px 3px #333,
-      5px 4px #333,6px 4px #f5e6c8,7px 4px #f5e6c8,8px 4px #f5e6c8,9px 4px #333,
-      5px 5px #333,6px 5px #f5e6c8,7px 5px #000,8px 5px #f5e6c8,9px 5px #333,
-      6px 6px #333,7px 6px #333,8px 6px #333,
-      3px 5px #ff7aa2,4px 5px #ffb3c9,5px 5px #ff7aa2,
-      2px 6px #ff7aa2,3px 6px #ffb3c9,4px 6px #ffb3c9,5px 6px #ffb3c9,6px 6px #ff7aa2,
-      2px 7px #ff7aa2,3px 7px #ffb3c9,4px 7px #ffb3c9,5px 7px #ffb3c9,6px 7px #ff7aa2,
-      3px 8px #ff7aa2,4px 8px #ffb3c9,5px 8px #ff7aa2,
-      4px 9px #333,6px 9px #333,8px 9px #333;
-      transform:scale(6);transform-origin:0 0}
-    /* сердечко svg */
-    .heart{position:absolute;width:24px;height:24px;opacity:0}
-    .heart::before{content:"";position:absolute;inset:0;background:red;clip-path:path('M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z')}
-    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:#fff;font-size:40px;text-align:center;opacity:0;text-shadow:2px 2px 4px #000}
+    .photo.cover{object-fit:cover}
+
+    .rainbow{position:absolute;height:36px;left:0;opacity:0;filter:brightness(1.1)}
+    .rainbow::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
+
+    /* Inline SVGs are absolutely positioned */
+    svg{position:absolute;display:block}
+    #cat{width:120px;height:96px;opacity:0}
+    #heart{width:26px;height:26px;opacity:0}
+
+    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:var(--txt);font-size:40px;text-align:center;opacity:0;text-shadow:2px 2px 0 var(--shadow)}
+
+    .ui{position:fixed;left:0;right:0;top:0;display:flex;gap:.5rem;justify-content:center;padding:.5rem;z-index:5}
+    .btn{appearance:none;border:0;border-radius:12px;padding:.55rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(4px)}
+    .btn:active{transform:scale(.98)}
   </style>
 </head>
 <body>
   <div class="stage" id="stage">
-    <img class="photo" id="photo" src="marisha.jpg" alt="photo"/>
+    <img class="photo" id="photo" alt="photo">
     <div class="rainbow" id="rainbow"></div>
-    <div class="cat" id="cat"></div>
-    <div class="heart" id="heart"></div>
+
+    <!-- Simple pixel cat made of rects (visible everywhere) -->
+    <svg id="cat" viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+      <!-- tail -->
+      <rect x="2" y="26" width="10" height="6" fill="#333"/>
+      <rect x="4" y="28" width="10" height="6" fill="#ff7aa2"/>
+      <!-- body -->
+      <rect x="12" y="22" width="28" height="18" fill="#333"/>
+      <rect x="14" y="24" width="24" height="14" fill="#ffb3c9"/>
+      <!-- head -->
+      <rect x="34" y="14" width="20" height="18" fill="#333"/>
+      <rect x="36" y="16" width="16" height="14" fill="#f5e6c8"/>
+      <!-- ears -->
+      <rect x="36" y="12" width="6" height="6" fill="#333"/>
+      <rect x="48" y="12" width="6" height="6" fill="#333"/>
+      <rect x="38" y="12" width="4" height="4" fill="#f5e6c8"/>
+      <rect x="48" y="12" width="4" height="4" fill="#f5e6c8"/>
+      <!-- eyes -->
+      <rect x="40" y="20" width="3" height="3" fill="#000"/>
+      <rect x="47" y="20" width="3" height="3" fill="#000"/>
+      <!-- legs -->
+      <rect x="18" y="40" width="5" height="6" fill="#333"/>
+      <rect x="28" y="40" width="5" height="6" fill="#333"/>
+    </svg>
+
+    <!-- Heart -->
+    <svg id="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z" fill="#ff2b6a"/>
+    </svg>
+
     <div class="caption" id="caption">Мариша самая красивая</div>
   </div>
 
+  <div class="ui">
+    <button class="btn" id="fit">Заполнить/Вписать</button>
+    <button class="btn" id="replay">Повторить</button>
+  </div>
+
   <script>
-    const stage=document.getElementById('stage');
-    const cat=document.getElementById('cat');
-    const rainbow=document.getElementById('rainbow');
-    const heart=document.getElementById('heart');
-    const caption=document.getElementById('caption');
+    const stage = document.getElementById('stage');
+    const photo = document.getElementById('photo');
+    const cat = document.getElementById('cat');
+    const rainbow = document.getElementById('rainbow');
+    const heart = document.getElementById('heart');
+    const caption = document.getElementById('caption');
+    const fitBtn = document.getElementById('fit');
+    const replayBtn = document.getElementById('replay');
+
+    // Load photo: ?photo=... else ./marisha.jpg
+    (function(){
+      try{
+        const p = new URLSearchParams(location.search);
+        const photoParam = p.get('photo');
+        const textParam = p.get('text');
+        const fitParam = p.get('fit'); // 'cover' or 'contain'
+        if (textParam) caption.textContent = textParam;
+        if (fitParam === 'cover') photo.classList.add('cover');
+        if (photoParam) {
+          photo.src = photoParam;
+        } else {
+          photo.src = './marisha.jpg';
+          photo.onerror = ()=>{
+            const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='2000'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#111'/><stop offset='1' stop-color='#333'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`);
+            photo.src = 'data:image/svg+xml;utf8,'+svg;
+          };
+        }
+      }catch(e){}
+    })();
+
+    fitBtn.addEventListener('click', ()=> photo.classList.toggle('cover'));
+    replayBtn.addEventListener('click', start);
+    stage.addEventListener('click', start);
+    window.addEventListener('resize', ()=> start());
 
     function start(){
-      caption.style.opacity=0;
-      heart.style.opacity=0;
-      cat.style.opacity=1;
-      rainbow.style.opacity=1;
+      caption.style.opacity = 0;
+      heart.style.opacity = 0;
+      cat.style.opacity = 1;
+      rainbow.style.opacity = 1;
 
-      const W=stage.clientWidth,H=stage.clientHeight;
-      let x=-120;const y=H*0.55-40;const targetX=W*0.6;
-      cat.style.top=y+'px';cat.style.left=x+'px';
-      rainbow.style.top=(y+40-19)+'px';
+      const W = stage.clientWidth, H = stage.clientHeight;
+      const catW = 120, catH = 96;
+      let x = -catW - 40;
+      const y = H*0.55 - catH/2;
+      const targetX = W*0.60;
 
-      const t0=performance.now(),dur=1800;
-      function ease(t){return 1-Math.pow(1-t,4)}
+      cat.style.left = x + 'px';
+      cat.style.top = y + 'px';
+      rainbow.style.top = (y + catH/2 - 18) + 'px';
+
+      const t0 = performance.now();
+      const dur = 1800;
+      const easeOutQuart = t => 1 - Math.pow(1 - t, 4);
+
       function frame(now){
-        const p=Math.min(1,(now-t0)/dur),e=ease(p);
-        x=-120+(targetX+120)*e;
-        cat.style.left=x+'px';
-        rainbow.style.width=Math.max(60,x+80)+'px';
-        if(p<1)requestAnimationFrame(frame);else kiss();
+        const p = Math.min(1, (now - t0)/dur);
+        const e = easeOutQuart(p);
+        x = (-catW - 40) + (targetX - (-catW - 40)) * e;
+        cat.style.left = x + 'px';
+        rainbow.style.width = Math.max(60, x + catW*0.8) + 'px';
+        if (p < 1) requestAnimationFrame(frame); else kiss();
       }
       requestAnimationFrame(frame);
     }
 
     function kiss(){
-      const x=parseInt(cat.style.left),y=parseInt(cat.style.top);
-      heart.style.left=(x+80)+'px';heart.style.top=(y+40)+'px';
-      heart.style.opacity=1;
-      heart.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-40px)',opacity:0}],{duration:800,easing:'ease-out'}).onfinish=()=>heart.style.opacity=0;
-      caption.animate([{opacity:0},{opacity:1}],{duration:1200,easing:'ease-out'}).onfinish=()=>caption.style.opacity=1;
+      const x = parseFloat(getComputedStyle(cat).left);
+      const y = parseFloat(getComputedStyle(cat).top);
+      heart.style.left = (x + 90) + 'px';
+      heart.style.top = (y + 50) + 'px';
+      heart.style.opacity = 1;
+      heart.animate([
+        { transform:'translateY(0)', opacity:1 },
+        { transform:'translateY(-40px)', opacity:0 }
+      ], { duration: 800, easing: 'ease-out' }).onfinish = ()=> heart.style.opacity = 0;
+
+      cat.animate([
+        { transform:'scale(1)' },
+        { transform:'scale(1.08)' },
+        { transform:'scale(1)' }
+      ], { duration: 240, easing:'ease-out' });
+
+      caption.animate([
+        { opacity: 0 },
+        { opacity: 1 }
+      ], { duration: 1200, easing: 'ease-out' }).onfinish = ()=> caption.style.opacity = 1;
     }
 
-    document.addEventListener('click',start);
-    window.addEventListener('load',start);
+    photo.addEventListener('load', ()=> start(), { once:true });
   </script>
 </body>
 </html>
