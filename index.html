@@ -8,10 +8,25 @@
     html,body{margin:0;height:100%;background:#000;overflow:hidden}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .stage{position:fixed;inset:0;overflow:hidden}
-    .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
     .rainbow{position:absolute;height:38px;left:0;opacity:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
-    .cat{position:absolute;width:96px;height:80px;background:url('cat.png') center/contain no-repeat;opacity:0}
-    .heart{position:absolute;width:24px;height:24px;background:url('heart.png') center/contain no-repeat;opacity:0}
+    /* встроенный пиксельный кот через box-shadow */
+    .cat{position:absolute;width:1px;height:1px;opacity:0;image-rendering:pixelated}
+    .cat::before{content:"";position:absolute;width:1px;height:1px;box-shadow:
+      6px 2px #333,7px 2px #333,8px 2px #333,
+      5px 3px #333,6px 3px #ccc,7px 3px #f5e6c8,8px 3px #ccc,9px 3px #333,
+      5px 4px #333,6px 4px #f5e6c8,7px 4px #f5e6c8,8px 4px #f5e6c8,9px 4px #333,
+      5px 5px #333,6px 5px #f5e6c8,7px 5px #000,8px 5px #f5e6c8,9px 5px #333,
+      6px 6px #333,7px 6px #333,8px 6px #333,
+      3px 5px #ff7aa2,4px 5px #ffb3c9,5px 5px #ff7aa2,
+      2px 6px #ff7aa2,3px 6px #ffb3c9,4px 6px #ffb3c9,5px 6px #ffb3c9,6px 6px #ff7aa2,
+      2px 7px #ff7aa2,3px 7px #ffb3c9,4px 7px #ffb3c9,5px 7px #ffb3c9,6px 7px #ff7aa2,
+      3px 8px #ff7aa2,4px 8px #ffb3c9,5px 8px #ff7aa2,
+      4px 9px #333,6px 9px #333,8px 9px #333;
+      transform:scale(6);transform-origin:0 0}
+    /* сердечко svg */
+    .heart{position:absolute;width:24px;height:24px;opacity:0}
+    .heart::before{content:"";position:absolute;inset:0;background:red;clip-path:path('M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z')}
     .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:#fff;font-size:40px;text-align:center;opacity:0;text-shadow:2px 2px 4px #000}
   </style>
 </head>
