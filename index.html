@@ -5,127 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Мариша — открытка</title>
   <style>
-    :root{--bg:#000;--txt:#fff;--shadow:rgba(0,0,0,.45)}
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%;background:#000;overscroll-behavior:none}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
-
-    .stage{position:fixed;inset:0;overflow:hidden;background:#000}
-    .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05)}
-
-    /* Rainbow trail */
-    .rainbow{position:absolute;height:38px;left:0;opacity:0; /* shown when cat visible */}
-    .rainbow > div{position:absolute;top:0;bottom:0}
-    .r-red{left:0;right:83.33%;background:#ff0018}
-    .r-orange{left:16.66%;right:66.66%;background:#ffa52c}
-    .r-yellow{left:33.33%;right:50%;background:#ffff41}
-    .r-green{left:50%;right:33.33%;background:#008018}
-    .r-blue{left:66.66%;right:16.66%;background:#0000f9}
-    .r-violet{left:83.33%;right:0;background:#86007d}
-
-    /* Pixel cat (tiny CSS-pixel art built from box-shadows) */
-    .cat{position:absolute;width:1px;height:1px;opacity:0;image-rendering:pixelated}
-    /* Build cat using CSS box-shadows (simple 12x10 sprite). Each 1px square scaled via transform */
-    .cat::before{content:"";position:absolute;width:1px;height:1px;box-shadow:
-      /* head */
-      6px 2px #333,7px 2px #333,8px 2px #333,
-      5px 3px #333,6px 3px #ccc,7px 3px #f5e6c8,8px 3px #ccc,9px 3px #333,
-      5px 4px #333,6px 4px #f5e6c8,7px 4px #f5e6c8,8px 4px #f5e6c8,9px 4px #333,
-      5px 5px #333,6px 5px #f5e6c8,7px 5px #000,8px 5px #f5e6c8,9px 5px #333,
-      6px 6px #333,7px 6px #333,8px 6px #333,
-      /* body */
-      3px 5px #ff7aa2,4px 5px #ffb3c9,5px 5px #ff7aa2,
-      2px 6px #ff7aa2,3px 6px #ffb3c9,4px 6px #ffb3c9,5px 6px #ffb3c9,6px 6px #ff7aa2,
-      2px 7px #ff7aa2,3px 7px #ffb3c9,4px 7px #ffb3c9,5px 7px #ffb3c9,6px 7px #ff7aa2,
-      3px 8px #ff7aa2,4px 8px #ffb3c9,5px 8px #ff7aa2,
-      /* legs */
-      4px 9px #333,6px 9px #333,8px 9px #333;
-      transform:scale(6);transform-origin:0 0
-    }
-
-    /* Heart (SVG-sized container) */
-    .heart{position:absolute;width:24px;height:24px;opacity:0}
-    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:var(--txt);font-size:40px;letter-spacing:.5px;text-align:center;opacity:0;text-shadow:2px 2px 0 var(--shadow)}
-
-    @media (max-width:380px){.caption{font-size:28px}}
-    .ui{position:fixed;left:0;right:0;top:0;display:flex;gap:.5rem;justify-content:center;padding:.5rem;z-index:5}
-    .btn{appearance:none;border:0;border-radius:12px;padding:.6rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(4px)}
-    .btn:active{transform:scale(.98)}
-    .hint{position:fixed;left:50%;transform:translateX(-50%);bottom:2vh;color:#fff;font-size:12px;opacity:.7}
+    html,body{margin:0;height:100%;background:#000;overflow:hidden}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    .stage{position:fixed;inset:0;overflow:hidden}
+    .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .rainbow{position:absolute;height:38px;left:0;opacity:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
+    .cat{position:absolute;width:96px;height:80px;background:url('cat.png') center/contain no-repeat;opacity:0}
+    .heart{position:absolute;width:24px;height:24px;background:url('heart.png') center/contain no-repeat;opacity:0}
+    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:#fff;font-size:40px;text-align:center;opacity:0;text-shadow:2px 2px 4px #000}
   </style>
 </head>
 <body>
-  <div class="stage">
-    <img class="photo" id="photo" alt="photo"/>
-    <div class="rainbow" id="rainbow" aria-hidden="true">
-      <div class="r-red"></div><div class="r-orange"></div><div class="r-yellow"></div>
-      <div class="r-green"></div><div class="r-blue"></div><div class="r-violet"></div>
-    </div>
-    <div class="cat" id="cat" aria-hidden="true"></div>
-    <svg class="heart" id="heart" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z" fill="#ff2b6a"/>
-    </svg>
+  <div class="stage" id="stage">
+    <img class="photo" id="photo" src="marisha.jpg" alt="photo"/>
+    <div class="rainbow" id="rainbow"></div>
+    <div class="cat" id="cat"></div>
+    <div class="heart" id="heart"></div>
     <div class="caption" id="caption">Мариша самая красивая</div>
   </div>
 
-  <div class="ui">
-    <button class="btn" id="pick">Выбрать фото</button>
-    <button class="btn" id="replay">Повторить</button>
-    <input type="file" id="file" accept="image/*" hidden>
-  </div>
-  <div class="hint">Можно передать фото через параметр ?photo=URL</div>
-
   <script>
-    (function(){
-      const stage = document.querySelector('.stage');
-      const photo = document.getElementById('photo');
-      const cat = document.getElementById('cat');
-      const rainbow = document.getElementById('rainbow');
-      const heart = document.getElementById('heart');
-      const caption = document.getElementById('caption');
-      const input = document.getElementById('file');
-      const pickBtn = document.getElementById('pick');
-      const replayBtn = document.getElementById('replay');
+    const stage=document.getElementById('stage');
+    const cat=document.getElementById('cat');
+    const rainbow=document.getElementById('rainbow');
+    const heart=document.getElementById('heart');
+    const caption=document.getElementById('caption');
 
-      // Load photo from ?photo=... or fallback to local marisha.jpg
-      try {
-        const params = new URLSearchParams(location.search);
-        const p = params.get('photo');
-        const t = params.get('text');
-        if (t) {
-          caption.textContent = t;
-        }
-        if(p){
-          photo.src = p;
-        } else {
-          // Try local file next to index.html
-          photo.src = './marisha.jpg';
-          photo.onerror = () => {
-            // fallback gradient placeholder if marisha.jpg is missing
-            const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='2000'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#111'/><stop offset='1' stop-color='#333'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`);
-            photo.src = 'data:image/svg+xml;utf8,'+svg;
-          };
-        }
+    function start(){
+      caption.style.opacity=0;
+      heart.style.opacity=0;
+      cat.style.opacity=1;
+      rainbow.style.opacity=1;
 
-          // caption: fade in
-          caption.animate([
-            { opacity: 0 },
-            { opacity: 1 }
-          ], { duration: 1200, easing:'ease-out' }).onfinish = ()=>{
-            caption.style.opacity = 1;
-          };
-        }
+      const W=stage.clientWidth,H=stage.clientHeight;
+      let x=-120;const y=H*0.55-40;const targetX=W*0.6;
+      cat.style.top=y+'px';cat.style.left=x+'px';
+      rainbow.style.top=(y+40-19)+'px';
+
+      const t0=performance.now(),dur=1800;
+      function ease(t){return 1-Math.pow(1-t,4)}
+      function frame(now){
+        const p=Math.min(1,(now-t0)/dur),e=ease(p);
+        x=-120+(targetX+120)*e;
+        cat.style.left=x+'px';
+        rainbow.style.width=Math.max(60,x+80)+'px';
+        if(p<1)requestAnimationFrame(frame);else kiss();
       }
+      requestAnimationFrame(frame);
+    }
 
-      // Autostart once photo has a source
-      photo.addEventListener('load', ()=> start(), { once:true });
+    function kiss(){
+      const x=parseInt(cat.style.left),y=parseInt(cat.style.top);
+      heart.style.left=(x+80)+'px';heart.style.top=(y+40)+'px';
+      heart.style.opacity=1;
+      heart.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-40px)',opacity:0}],{duration:800,easing:'ease-out'}).onfinish=()=>heart.style.opacity=0;
+      caption.animate([{opacity:0},{opacity:1}],{duration:1200,easing:'ease-out'}).onfinish=()=>caption.style.opacity=1;
+    }
 
-      // Tap anywhere to replay
-      stage.addEventListener('click', ()=> start());
-
-      // Handle resize
-      window.addEventListener('resize', ()=> start());
-    })();
+    document.addEventListener('click',start);
+    window.addEventListener('load',start);
   </script>
 </body>
 </html>
