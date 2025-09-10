@@ -1,192 +1,221 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Мариша — открытка</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>С Днём Рождения, Даша!</title>
   <style>
-    :root{--txt:#fff;--shadow:rgba(0,0,0,.55)}
+    :root{--fg:#fff;--shadow:rgba(0,0,0,.55)}
     *{box-sizing:border-box}
     html,body{margin:0;height:100%;background:#000;overflow:hidden}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 
     .stage{position:fixed;inset:0;overflow:hidden}
-    .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
-    .photo.cover{object-fit:cover}
+    .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.95)}
+    .bg.contain{object-fit:contain;background:#000}
 
-    .rainbow{position:absolute;height:36px;left:0;opacity:0;filter:brightness(1.1)}
-    .rainbow::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#ff0018,#ffa52c,#ffff41,#008018,#0000f9,#86007d)}
+    .veil{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 30%, rgba(0,0,0,.0), rgba(0,0,0,.45) 60%, rgba(0,0,0,.65))}
 
-    svg{position:absolute;display:block}
-    #cat{width:120px;height:96px;opacity:0}
-    #heart{width:26px;height:26px;opacity:0}
+    /* Text blocks */
+    .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:var(--fg);padding:0 6vw}
+    .h1{font-size:42px;letter-spacing:.5px;text-shadow:0 2px 14px rgba(0,0,0,.45)}
+    .h2{font-size:22px;line-height:1.45;opacity:.92;margin-top:12px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+    .sig{font-size:18px;opacity:.9;margin-top:18px}
 
-    .caption{position:absolute;left:50%;transform:translateX(-50%);bottom:8vh;color:var(--txt);font-size:40px;text-align:center;opacity:0;text-shadow:2px 2px 0 var(--shadow)}
+    /* Appear animations */
+    .hide{opacity:0;transform:translate(-50%,-40%)}
+    .show{animation:fadeInUp .9s ease-out forwards}
+    .show2{animation:fadeInUp .9s .6s ease-out forwards}
+    .show3{animation:fadeInUp .9s 1.2s ease-out forwards}
+    @keyframes fadeInUp{from{opacity:0;transform:translate(-50%,-40%)}to{opacity:1;transform:translate(-50%,-50%)}}
 
-    .ui{position:fixed;left:0;right:0;top:0;display:flex;gap:.5rem;justify-content:center;padding:.5rem;z-index:5}
-    .btn{appearance:none;border:0;border-radius:12px;padding:.55rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(4px)}
+    /* Buttons */
+    .ui{position:fixed;top:10px;left:0;right:0;display:flex;gap:.5rem;justify-content:center;z-index:5}
+    .btn{appearance:none;border:0;border-radius:999px;padding:.55rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(6px)}
     .btn:active{transform:scale(.98)}
 
-    /* kiss marker (for calibration) */
-    .mark{position:fixed;width:10px;height:10px;border-radius:50%;background:#ff2b6a;box-shadow:0 0 0 3px rgba(255,43,106,.35);transform:translate(-50%,-50%);pointer-events:none;opacity:.7}
+    /* Hearts */
+    .hearts{position:absolute;inset:0;pointer-events:none}
+    .heart{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%);opacity:0}
+    .heart::before{content:"";position:absolute;inset:0;background:#ff3b7b;clip-path:path('M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z')}
+
+    /* Confetti (CSS) */
+    .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+    .confetti i{position:absolute;top:-10px;width:8px;height:14px;background:#fff;opacity:.9;animation:drop linear forwards}
+    @keyframes drop{to{transform:translateY(110vh) rotate(360deg)}}
+
+    canvas{position:absolute;inset:0;pointer-events:none}
+
+    @media (max-width:420px){.h1{font-size:32px}.h2{font-size:18px}}
   </style>
 </head>
 <body>
   <div class="stage" id="stage">
-    <img class="photo" id="photo" alt="photo">
-    <div class="rainbow" id="rainbow"></div>
+    <img class="bg" id="bg" alt="Фото Даши">
+    <div class="veil"></div>
 
-    <!-- Pixel cat (SVG rectangles) -->
-    <svg id="cat" viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-      <rect x="2" y="26" width="10" height="6" fill="#333"/>
-      <rect x="4" y="28" width="10" height="6" fill="#ff7aa2"/>
-      <rect x="12" y="22" width="28" height="18" fill="#333"/>
-      <rect x="14" y="24" width="24" height="14" fill="#ffb3c9"/>
-      <rect x="34" y="14" width="20" height="18" fill="#333"/>
-      <rect x="36" y="16" width="16" height="14" fill="#f5e6c8"/>
-      <rect x="36" y="12" width="6" height="6" fill="#333"/>
-      <rect x="48" y="12" width="6" height="6" fill="#333"/>
-      <rect x="38" y="12" width="4" height="4" fill="#f5e6c8"/>
-      <rect x="48" y="12" width="4" height="4" fill="#f5e6c8"/>
-      <rect x="40" y="20" width="3" height="3" fill="#000"/>
-      <rect x="47" y="20" width="3" height="3" fill="#000"/>
-      <rect x="18" y="40" width="5" height="6" fill="#333"/>
-      <rect x="28" y="40" width="5" height="6" fill="#333"/>
-    </svg>
+    <!-- Fireworks canvas -->
+    <canvas id="fx"></canvas>
 
-    <svg id="heart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z" fill="#ff2b6a"/>
-    </svg>
+    <!-- Confetti & Hearts layers -->
+    <div class="confetti" id="confetti"></div>
+    <div class="hearts" id="hearts"></div>
 
-    <div class="caption" id="caption">Мариша самая красивая</div>
+    <!-- Text -->
+    <div class="center">
+      <div id="t1" class="h1 hide">С Днём Рождения, Даша! 🎉</div>
+      <div id="t2" class="h2 hide">Пусть каждый день будет таким же ярким, как салют в небе; таким же тёплым, как твоя улыбка; и таким же нежным, как твоя душа.</div>
+      <div id="t3" class="h2 sig hide">Ты для меня невероятно дорога. Будь счастлива сегодня и всегда ❤️</div>
+    </div>
   </div>
 
+  <!-- Controls -->
   <div class="ui">
     <button class="btn" id="fit">Заполнить/Вписать</button>
+    <button class="btn" id="pick">Выбрать фото</button>
     <button class="btn" id="replay">Повторить</button>
+    <input type="file" id="file" accept="image/*" hidden>
   </div>
-
-  <div class="mark" id="mark" style="display:none"></div>
 
   <script>
     const stage = document.getElementById('stage');
-    const photo = document.getElementById('photo');
-    const cat = document.getElementById('cat');
-    const rainbow = document.getElementById('rainbow');
-    const heart = document.getElementById('heart');
-    const caption = document.getElementById('caption');
+    const bg = document.getElementById('bg');
     const fitBtn = document.getElementById('fit');
+    const pickBtn = document.getElementById('pick');
     const replayBtn = document.getElementById('replay');
-    const mark = document.getElementById('mark');
+    const file = document.getElementById('file');
 
-    // kiss point relative (0..1 of stage). Defaults tuned for your photo
-    let kissX = 0.67; // правую щёку по умолчанию
-    let kissY = 0.41;
+    const t1 = document.getElementById('t1');
+    const t2 = document.getElementById('t2');
+    const t3 = document.getElementById('t3');
 
-    // URL params: photo, text, fit, kissX, kissY
+    // URL params: photo, name, line1, line2, line3, fit
     (function(){
-      try {
-        const p = new URLSearchParams(location.search);
-        const t = p.get('text'); if(t) caption.textContent = t;
-        const f = p.get('fit'); if(f === 'cover') photo.classList.add('cover');
-        const kx = parseFloat(p.get('kissX')); if(!isNaN(kx)) kissX = Math.min(1, Math.max(0, kx));
-        const ky = parseFloat(p.get('kissY')); if(!isNaN(ky)) kissY = Math.min(1, Math.max(0, ky));
-        const src = p.get('photo');
-        if(src){ photo.src = src; }
-        else {
-          photo.src = './marisha.jpg';
-          photo.onerror = ()=>{
-            const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='2000'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#111'/><stop offset='1' stop-color='#333'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`);
-            photo.src = 'data:image/svg+xml;utf8,'+svg;
-          };
-        }
-      } catch(e){}
+      const p = new URLSearchParams(location.search);
+      const src = p.get('photo');
+      const name = p.get('name') || 'Даша';
+      const line1 = p.get('line1');
+      const line2 = p.get('line2');
+      const line3 = p.get('line3');
+      const fit = p.get('fit');
+
+      t1.textContent = (line1 || `С Днём Рождения, ${name}! 🎉`);
+      if(line2) t2.textContent = line2;
+      if(line3) t3.textContent = line3;
+
+      if(fit === 'contain') bg.classList.add('contain');
+      if(src){ bg.src = src; } else {
+        bg.src = './dasha.jpg';
+        bg.onerror = ()=>{
+          const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='2000'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='#222'/><stop offset='1' stop-color='#000'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`);
+          bg.src = 'data:image/svg+xml;utf8,'+svg;
+        };
+      }
     })();
 
-    fitBtn.addEventListener('click', ()=> photo.classList.toggle('cover'));
-    replayBtn.addEventListener('click', start);
-    stage.addEventListener('click', (e)=>{
-      if(e.shiftKey){
-        // Shift+Click to set kiss point
-        const r = stage.getBoundingClientRect();
-        kissX = (e.clientX - r.left)/r.width;
-        kissY = (e.clientY - r.top)/r.height;
-        placeMark();
-        start();
-      } else {
-        start();
-      }
+    fitBtn.addEventListener('click', ()=> bg.classList.toggle('contain'));
+    pickBtn.addEventListener('click', ()=> file.click());
+    file.addEventListener('change', e=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return; bg.src = URL.createObjectURL(f); start();
     });
-    window.addEventListener('resize', ()=> start());
+    replayBtn.addEventListener('click', start);
 
-    function placeMark(){
-      const x = stage.clientWidth * kissX;
-      const y = stage.clientHeight * kissY;
-      mark.style.left = x + 'px';
-      mark.style.top = y + 'px';
-      mark.style.display = 'block';
+    // Confetti
+    function spawnConfetti(){
+      const wrap = document.getElementById('confetti');
+      wrap.innerHTML = '';
+      const colors = ['#ffd166','#06d6a0','#ef476f','#118ab2','#a78bfa','#f472b6'];
+      const N = 90;
+      for(let i=0;i<N;i++){
+        const el = document.createElement('i');
+        el.style.left = Math.random()*100 + 'vw';
+        el.style.background = colors[(Math.random()*colors.length)|0];
+        el.style.animationDuration = (6+Math.random()*5) + 's';
+        el.style.opacity = (0.6+Math.random()*0.4);
+        el.style.transform = 'rotate('+ (Math.random()*360)+'deg)';
+        wrap.appendChild(el);
+      }
+      // clear after 12s
+      setTimeout(()=>wrap.innerHTML='', 12000);
+    }
+
+    // Floating hearts burst near bottom center
+    function burstHearts(){
+      const layer = document.getElementById('hearts');
+      layer.innerHTML='';
+      const W = stage.clientWidth, H = stage.clientHeight;
+      for(let i=0;i<18;i++){
+        const h = document.createElement('div');
+        h.className = 'heart';
+        const x = W*0.5 + (Math.random()*200-100);
+        const y = H*0.80 + (Math.random()*30-15);
+        h.style.left = x+'px'; h.style.top = y+'px';
+        layer.appendChild(h);
+        const dx = (Math.random()*2-1)*80;
+        const dy = - (80 + Math.random()*120);
+        const d = 1600 + Math.random()*1000;
+        h.animate([
+          { transform:'translate(-50%,-50%) scale(0.8)', opacity:0.0 },
+          { transform:`translate(${dx}px, ${dy}px) scale(1.2)`, opacity:1 },
+          { transform:`translate(${dx}px, ${dy-40}px) scale(1.2)`, opacity:0 }
+        ], { duration:d, easing:'ease-out' }).onfinish = ()=> h.remove();
+      }
+    }
+
+    // Fireworks (simple particles)
+    function fireworks(){
+      const c = document.getElementById('fx');
+      const ctx = c.getContext('2d');
+      const DPR = window.devicePixelRatio || 1;
+      const resize = ()=>{ c.width = innerWidth*DPR; c.height = innerHeight*DPR; c.style.width = innerWidth+'px'; c.style.height = innerHeight+'px'; };
+      resize(); window.addEventListener('resize', resize);
+
+      let particles=[]; let last=0;
+      function spawn(x,y,color){
+        for(let i=0;i<80;i++){
+          const a = Math.random()*Math.PI*2;
+          const v = 1+Math.random()*3;
+          particles.push({x:x*DPR,y:y*DPR,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:60+Math.random()*20,color});
+        }
+      }
+      function loop(ts){
+        const dt = Math.min(33, ts-last||16); last = ts;
+        ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(0,0,c.width,c.height);
+        particles.forEach(p=>{p.x+=p.vx*dt*0.06; p.y+=p.vy*dt*0.06; p.vy+=0.02; p.life-=1});
+        particles = particles.filter(p=>p.life>0);
+        particles.forEach(p=>{ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,2,2)});
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      const palette=['#ffd166','#06d6a0','#ef476f','#118ab2','#f472b6','#a78bfa'];
+      setInterval(()=>{
+        const x = innerWidth*(0.2+Math.random()*0.6);
+        const y = innerHeight*(0.25+Math.random()*0.35);
+        spawn(x,y,palette[(Math.random()*palette.length)|0]);
+      }, 1400);
+    }
+
+    function showText(){
+      t1.classList.remove('hide'); t1.classList.add('show');
+      t2.classList.remove('hide'); t2.classList.add('show2');
+      t3.classList.remove('hide'); t3.classList.add('show3');
     }
 
     function start(){
-      caption.style.opacity = 0;
-      heart.style.opacity = 0;
-      cat.style.opacity = 1;
-      rainbow.style.opacity = 1;
-
-      const W = stage.clientWidth, H = stage.clientHeight;
-      const catW = 120, catH = 96;
-
-      const targetPX = W * kissX;
-      const targetPY = H * kissY;
-      placeMark();
-
-      // Start cat off-screen left at correct Y
-      let x = -catW - 40;
-      const y = targetPY - catH/2;
-
-      cat.style.left = x + 'px';
-      cat.style.top = y + 'px';
-      rainbow.style.top = (y + catH/2 - 18) + 'px';
-
-      const stopX = targetPX - 34; // align cat "nose" to kiss point
-
-      const t0 = performance.now();
-      const dur = 1600;
-      const easeOutQuart = t => 1 - Math.pow(1 - t, 4);
-
-      function frame(now){
-        const p = Math.min(1, (now - t0)/dur);
-        const e = easeOutQuart(p);
-        x = (-catW - 40) + (stopX - (-catW - 40)) * e;
-        cat.style.left = x + 'px';
-        rainbow.style.width = Math.max(60, x + catW*0.8) + 'px';
-        if(p < 1) requestAnimationFrame(frame); else kissAt(targetPX, targetPY);
-      }
-      requestAnimationFrame(frame);
+      // reset text classes
+      [t1,t2,t3].forEach(el=>{el.classList.remove('show','show2','show3'); el.classList.add('hide')});
+      // main sequence
+      spawnConfetti();
+      fireworks();
+      setTimeout(showText, 500);
+      setTimeout(burstHearts, 2400);
     }
 
-    function kissAt(px, py){
-      // heart at the cheek
-      heart.style.left = (px - 6) + 'px';
-      heart.style.top = (py - 6) + 'px';
-      heart.style.opacity = 1;
-      heart.animate([
-        { transform:'translateY(0)', opacity:1 },
-        { transform:'translateY(-40px)', opacity:0 }
-      ], { duration: 900, easing: 'ease-out' }).onfinish = ()=> heart.style.opacity = 0;
-
-      // tiny pop
-      cat.animate([
-        { transform:'scale(1)' },
-        { transform:'scale(1.08)' },
-        { transform:'scale(1)' }
-      ], { duration: 240, easing:'ease-out' });
-
-      // caption fade
-      caption.animate([{opacity:0},{opacity:1}],{duration:1200,easing:'ease-out'}).onfinish=()=>caption.style.opacity=1;
-    }
-
-    photo.addEventListener('load', ()=> start(), { once:true });
+    bg.addEventListener('load', start, { once:true });
+    // If bg is data URL gradient and loads instantly, still trigger
+    if(bg.complete && bg.naturalWidth) start();
   </script>
 </body>
 </html>
