@@ -16,30 +16,30 @@
 
     .veil{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 30%, rgba(0,0,0,.0), rgba(0,0,0,.45) 60%, rgba(0,0,0,.65))}
 
-    /* Text blocks */
+    
     .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;color:var(--fg);padding:0 6vw}
     .h1{font-size:42px;letter-spacing:.5px;text-shadow:0 2px 14px rgba(0,0,0,.45)}
     .h2{font-size:22px;line-height:1.45;opacity:.92;margin-top:12px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
     .sig{font-size:18px;opacity:.9;margin-top:18px}
 
-    /* Appear animations */
+    
     .hide{opacity:0;transform:translate(-50%,-40%)}
     .show{animation:fadeInUp .9s ease-out forwards}
     .show2{animation:fadeInUp .9s .6s ease-out forwards}
     .show3{animation:fadeInUp .9s 1.2s ease-out forwards}
     @keyframes fadeInUp{from{opacity:0;transform:translate(-50%,-40%)}to{opacity:1;transform:translate(-50%,-50%)}}
 
-    /* Buttons */
+    
     .ui{position:fixed;top:10px;left:0;right:0;display:flex;gap:.5rem;justify-content:center;z-index:5}
     .btn{appearance:none;border:0;border-radius:999px;padding:.55rem .9rem;background:rgba(0,0,0,.55);color:#fff;font-size:14px;backdrop-filter:saturate(1.2) blur(6px)}
     .btn:active{transform:scale(.98)}
 
-    /* Hearts */
+    
     .hearts{position:absolute;inset:0;pointer-events:none}
     .heart{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%);opacity:0}
     .heart::before{content:"";position:absolute;inset:0;background:#ff3b7b;clip-path:path('M12 21s-6.4-3.9-9.2-8C1 10 2.2 6.8 5 6.2 7 5.8 8.7 7 9.5 8.2c.8-1.2 2.5-2.4 4.5-2 2.8.6 4 3.8 2.2 6.8C18.4 17.1 12 21 12 21z')}
 
-    /* Confetti (CSS) */
+    
     .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
     .confetti i{position:absolute;top:-10px;width:8px;height:14px;background:#fff;opacity:.9;animation:drop linear forwards}
     @keyframes drop{to{transform:translateY(110vh) rotate(360deg)}}
@@ -54,14 +54,14 @@
     <img class="bg" id="bg" alt="Фото Даши">
     <div class="veil"></div>
 
-    <!-- Fireworks canvas -->
+    
     <canvas id="fx"></canvas>
 
-    <!-- Confetti & Hearts layers -->
+    
     <div class="confetti" id="confetti"></div>
     <div class="hearts" id="hearts"></div>
 
-    <!-- Text -->
+    
     <div class="center">
       <div id="t1" class="h1 hide">С Днём Рождения, Даша! 🎉</div>
       <div id="t2" class="h2 hide">Пусть каждый день будет таким же ярким, как салют в небе; таким же тёплым, как твоя улыбка; и таким же нежным, как твоя душа.</div>
@@ -69,7 +69,7 @@
     </div>
   </div>
 
-  <!-- Controls -->
+  
   <div class="ui">
     <button class="btn" id="fit">Заполнить/Вписать</button>
     <button class="btn" id="pick">Выбрать фото</button>
@@ -89,7 +89,7 @@
     const t2 = document.getElementById('t2');
     const t3 = document.getElementById('t3');
 
-    // URL params: photo, name, line1, line2, line3, fit
+    
     (function(){
       const p = new URLSearchParams(location.search);
       const src = p.get('photo');
@@ -121,7 +121,7 @@
     });
     replayBtn.addEventListener('click', start);
 
-    // Confetti
+    
     function spawnConfetti(){
       const wrap = document.getElementById('confetti');
       wrap.innerHTML = '';
@@ -136,11 +136,11 @@
         el.style.transform = 'rotate('+ (Math.random()*360)+'deg)';
         wrap.appendChild(el);
       }
-      // clear after 12s
+      
       setTimeout(()=>wrap.innerHTML='', 12000);
     }
 
-    // Floating hearts burst near bottom center
+    
     function burstHearts(){
       const layer = document.getElementById('hearts');
       layer.innerHTML='';
@@ -163,7 +163,7 @@
       }
     }
 
-    // Fireworks (simple particles)
+    
     function fireworks(){
       const c = document.getElementById('fx');
       const ctx = c.getContext('2d');
@@ -204,9 +204,9 @@
     }
 
     function start(){
-      // reset text classes
+     
       [t1,t2,t3].forEach(el=>{el.classList.remove('show','show2','show3'); el.classList.add('hide')});
-      // main sequence
+      
       spawnConfetti();
       fireworks();
       setTimeout(showText, 500);
@@ -214,7 +214,7 @@
     }
 
     bg.addEventListener('load', start, { once:true });
-    // If bg is data URL gradient and loads instantly, still trigger
+    
     if(bg.complete && bg.naturalWidth) start();
   </script>
 </body>
